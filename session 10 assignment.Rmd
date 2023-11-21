@@ -1,5 +1,5 @@
 ---
-title: "Session 10 assignment"
+title: "Medical Cost LM"
 output: html_notebook
 ---
 
