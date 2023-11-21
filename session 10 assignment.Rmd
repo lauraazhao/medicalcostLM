@@ -1,0 +1,102 @@
+---
+title: "Session 10 assignment"
+output: html_notebook
+---
+
+```{r}
+#Read CSV into R
+MedicalCostData <- read.csv("MedicalCost.csv", header=TRUE)
+
+#Display the first few elements of the data to make sure the data is read
+head(MedicalCostData)
+```
+
+```{r}
+#Subset of the data
+charges <- MedicalCostData$charges
+age <- MedicalCostData$age
+
+#Plotting age against charges to see if there is a correlation
+plot(age, charges, pch=20, col="red")
+```
+
+```{r}
+#BMI subset eof the data
+bmi <- MedicalCostData$bmi
+
+#plotting bmi
+plot(bmi, charges, pch=20, col="red")
+```
+
+```{r}
+#Convert the sex variable in a binary variable
+MedicalCostData$sex <- factor(MedicalCostData$sex, levels = c("male", "female"), labels = c(0,1))
+```
+
+```{r}
+#Convert the smoker variable in a binary variable
+smoker_levels <- c("no", "yes")
+MedicalCostData$smoker <- factor(MedicalCostData$smoker, levels = smoker_levels, label = c(0,1))
+```
+
+```{r}
+#Delete the region data because it is not significant to our regression
+MedicalCostData$region <- NULL
+MedicalCostData
+```
+```{r}
+#Turning the sex and smoker variables into numerical variables
+#cor(MedicalCostData[ , ])
+MedicalCostData$sex = as.numeric(MedicalCostData$sex) - 1
+MedicalCostData$smoker = as.numeric(MedicalCostData$smoker) - 1
+cor(MedicalCostData[ , ])
+```
+
+```{r}
+#Create a regression model
+lmCharges = lm(charges~age + sex + bmi + children + smoker, data = MedicalCostData)
+summary(lmCharges)
+```
+The sex variable is statistically insignificant.
+
+```{r}
+#Re-run the regression model without the sex variable
+lmCharges = lm(charges~age + bmi + children + smoker, data = MedicalCostData)
+summary(lmCharges)
+```
+The predictor with the largest impact on charges would be smoker because it has the largest coefficient.
+
+The r-squared value is high, showing that the data highly fits the model. The adjusted R-squared changed very slightly from before the insignificant predictor was dropped, showing that there insignificant predictor had almost no impact on the model.
+
+```{r}
+#Split the data into a training set and testing set
+
+#Set the split to 80%
+num_samples = dim(pumpkinsData) [1]
+sampling.rate=0.8
+
+training <- sample(1:num_samples, sampling.rate * num_samples, replace=FALSE)
+trainingSet <- subset(MedicalCostData[training, ])
+
+testing <- setdiff(1:num_samples, training)
+testingSet <- subset(MedicalCostData[testing, ])
+
+```
+
+```{r}
+#Fit a model for the training set
+lmCharges = lm(charges~age + bmi + children + smoker, data = TrainingSet)
+summary(lmCharges)
+```
+
+```{r}
+#Perform predictions 
+model <- lm(charges ~ ., TestingSet)
+p <- predict(model, TestingSet)
+```
+
+```{r}
+#Evaluate the model by calculating the error
+error = p - TestingSet
+mse = mean(error^2)
+```
